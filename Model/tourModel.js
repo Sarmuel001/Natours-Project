@@ -1,4 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const slugify = require('slugify');
+
 
 const tourSchema = new mongoose.Schema({
     name: {
@@ -49,11 +51,28 @@ const tourSchema = new mongoose.Schema({
         type:Date,
         default: Date.now()
         },
-    startDate:[Date]
+    startDate:[Date],
+    slug :String,
+    secreTour:{
+        type:Boolean,
+        default: false
+    }
     
 })
 
 const Tour = mongoose.model('Tour', tourSchema)
+
+//let learn mongoose middleware
+//DOCUMENT MIDDLEWARE
+tourSchema.pre('save', function(){
+    this.slug = slugify(this.name,  {lower:true});  // TO MAKE THIS FUNCTION, WE NEED TO INSTALL SLUGIFY npm i slugify and import it
+    next();
+})
+
+//QUERY MIDDLEWARE
+tourSchema.pre('/^find/', function(next){
+this.find({secreTour: {$ne : true}})
+})
 
 
 module.exports = Tour;
